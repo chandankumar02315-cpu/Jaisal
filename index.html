@@ -1,0 +1,118 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jaisal Family</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f0f2f5;
+    margin: 0;
+    padding: 15px;
+}
+.container {
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+}
+h1 {
+    text-align: center;
+    color: #173b70;
+}
+input, button {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+button {
+    background: #1769aa;
+    color: white;
+    border: none;
+    border-radius: 6px;
+}
+.record {
+    background: #e8f0fe;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>JAISAL FAMILY</h1>
+<p style="text-align:center;">Family Management System</p>
+
+<h2>Add Family Details</h2>
+
+<form id="familyForm">
+
+<input id="name" type="text" placeholder="Member Name" required>
+
+<input id="village" type="text" placeholder="Village" required>
+
+<input id="address" type="text" placeholder="Address" required>
+
+<input id="age" type="number" placeholder="Age" required>
+
+<input id="mobile" type="tel" placeholder="Mobile Number" required>
+
+<button type="submit">Save Record</button>
+
+</form>
+
+<h2>Family Members List</h2>
+
+<div id="familyList"></div>
+
+</div>
+
+<script>
+
+const form = document.getElementById("familyForm");
+const list = document.getElementById("familyList");
+
+form.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const village = document.getElementById("village").value.trim();
+    const address = document.getElementById("address").value.trim();
+    const age = document.getElementById("age").value;
+    const mobile = document.getElementById("mobile").value.trim();
+
+    const record = document.createElement("div");
+    record.className = "record";
+
+    const details = document.createElement("p");
+    details.textContent =
+        "Name: " + name +
+        " | Village: " + village +
+        " | Address: " + address +
+        " | Age: " + age +
+        " | Mobile: " + mobile;
+
+    record.appendChild(details);
+    list.appendChild(record);
+
+    form.reset();
+
+    alert("Record Added Successfully!");
+
+});
+
+</script>
+
+</body>
+</html>
