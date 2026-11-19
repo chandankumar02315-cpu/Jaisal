@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<>
+<head>
+    <title>Company Data System</title>
+</head>
+<>
+
+<h1>Jaisal Family</h1>
+<p>Welcome to my femaly</p>
+
+<h2>Add Family Details</h2>
+
+<label>Member Name</label>
+<input type="text" placeholder="Member Name">
+
+<br><br>
+
+<label>Village</label>
+<input type="text" placeholder="Village">
+
+<br><br>
+
+<label>Post</label>
+<input type="text" placeholder="Post">
+
+<br><br>
+
+<label>Tahsil</label>
+<input type="text" placeholder="Tahsil">
+
+<br><br>
+
+<label>District</label>
+<input type="text" placeholder="District">
+
+<br><br>
+  
+<label>State</label>
+<input type="text" placeholder="State">
+
+<br><br>
+
+<label>Pin Code</label>
+<input type="tel" placeholder="Pin Code">
+
+<br><br>
+  
+<label>Date of Birth</label>
+<input type="date" placeholder="Age">
+
+<br><br>
+
+<label>AadharNo</label>
+<input type="number" placeholder="Aadhar No">
+
+<br><br>
+
+<label>Blood Group</label>
+<input type="text" placeholder="Blood Group">
+
+<br><br>
+
+<label>Mobile Number</label>
+<input type="tel" placeholder="Mobile Number">
+
+<br><br>
+
+<button type="button" onclick="save()">Save</button>
+
+<h2>Member Records</h2>
+
+<div id="JaisalList">
+    <p>अभी कोई रिकॉर्ड नहीं है।</p>
+</div>
+
+<script>
+
+
+function save() {
+    const fields = document.querySelectorAll("input");
+
+    const Membername = fields[0].value.trim();
+    const Villege = fields[1].value.trim();
+    const Post = fields[2].value.trim();
+    const Tahsil = fields[3].value.trim();
+    const District = fields[4].value.trim();
+    const State = fields[5].value.trim();
+    const Pincode = fields[6].value.trim();
+    const Dateofbirth = fields[7].value.trim();
+    const AadharNo = fields[8].value.trim();
+    const Bloodgroup = fields[9].value.trim();
+    const MobileNo = fields[10].value.trim()
+
+    if (!Membername || !Villege || !Post || !Tahsil ||
+        !District || !State || !Pincode || !Dateofbirth ||
+        !AadharNo || !Bloodgroup || !MobileNo) {
+        alert("कृपया सभी जानकारी भरें।");
+        return;
+    }
+
+    const list = document.getElementById("JaisalList");
+
+    const record = document.createElement("div");
+    record.style.border = "1px solid #1004aa";
+    record.style.padding = "10px";
+    record.style.margin = "10px 0";
+
+    const details = document.createElement("p");
+
+    details.textContent =
+        "Name: " + Membername +
+        " | Village: " + Villege +
+        " | Post: " + Post +
+        " | Tahsil: " + Tahsil +
+        " | District: " + District +
+        " | State: " + State +
+        " | Pincode: " + Pincode +
+        " | Date of Birth: " + Dateofbirth +
+        " | AadharNo: " + AadharNo +
+        " | Blood Group: " + Bloodgroup +
+        " | Mobile: " + MobileNo;
+
+    record.appendChild(details);
+    list.appendChild(record);
+
+    localStorage.setItem("JaisalRecords", list.innerHTML);
+
+    fields.forEach(field => field.value = "");
+
+    alert("Record Saved Successfully!");
+}
+
+// Page खुलने पर पुराने रिकॉर्ड दिखाओ
+window.onload = function() {
+    const savedData = localStorage.getItem("JaisalRecords");
+
+    if (savedData) {
+        document.getElementById("JaisalList").innerHTML = savedData;
+    }
+};
+  </script>
