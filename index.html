@@ -2,230 +2,321 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jaisal Family</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jaisal Family</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 15px;
-            background: #f2f4f8;
-        }
-
-        h1, h2 {
-            color: #173b8a;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 18px;
-            border-radius: 10px;
-        }
-
-        label {
-            display: block;
-            margin-top: 12px;
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #aaa;
-            border-radius: 5px;
-        }
-
-        button {
-            padding: 10px 16px;
-            margin-top: 15px;
-            border: none;
-            border-radius: 5px;
-            background: #173b8a;
-            color: white;
-            cursor: pointer;
-        }
-
-        .record {
-            border: 1px solid #173b8a;
-            padding: 12px;
-            margin-top: 12px;
-            border-radius: 7px;
-            overflow-wrap: anywhere;
-        }
-
-        .delete-btn {
-            background: #c62828;
-        }
-    </style>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    padding: 15px;
+    background: #f2f4f8;
+}
+.container {
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    padding: 18px;
+    border-radius: 10px;
+}
+h1,h2 { color: #173b8a; }
+label {
+    display: block;
+    margin-top: 12px;
+    font-weight: bold;
+}
+input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+}
+button {
+    padding: 10px 16px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 5px;
+    background: #173b8a;
+    color: white;
+}
+.record {
+    border: 1px solid #173b8a;
+    padding: 12px;
+    margin-top: 12px;
+    border-radius: 7px;
+    overflow-wrap: anywhere;
+}
+.delete-btn { background: #c62828; }
+#adminPanel {
+    background: #eef2ff;
+    padding: 12px;
+    margin-top: 20px;
+    border-radius: 8px;
+}
+</style>
 </head>
 
 <body>
 <div class="container">
 
-    <h1>Jaisal Family</h1>
-    <p>Welcome to my Family</p>
+<h1>Jaisal Family</h1>
+<p>Welcome to my Family</p>
 
-    <h2>Add Family Details</h2>
+<h2>Add Family Details</h2>
 
-    <form id="familyForm">
+<form id="familyForm">
+<label>Member Name</label>
+<input id="memberName" required>
 
-        <label>Member Name</label>
-        <input id="memberName" type="text" required>
+<label>Village</label>
+<input id="village" required>
 
-        <label>Village</label>
-        <input id="village" type="text" required>
+<label>Post</label>
+<input id="post" required>
 
-        <label>Post</label>
-        <input id="post" type="text" required>
+<label>Tahsil</label>
+<input id="tahsil" required>
 
-        <label>Tahsil</label>
-        <input id="tahsil" type="text" required>
+<label>District</label>
+<input id="district" required>
 
-        <label>District</label>
-        <input id="district" type="text" required>
+<label>State</label>
+<input id="state" required>
 
-        <label>State</label>
-        <input id="state" type="text" required>
+<label>Pin Code</label>
+<input id="pincode" inputmode="numeric"
+maxlength="6" required>
 
-        <label>Pin Code</label>
-        <input id="pincode" type="text"
-               inputmode="numeric" maxlength="6" required>
+<label>Date of Birth</label>
+<input id="dob" type="date" required>
 
-        <label>Date of Birth</label>
-        <input id="dob" type="date" required>
+<label>Blood Group</label>
+<input id="bloodGroup" required>
 
-        <label>Blood Group</label>
-        <input id="bloodGroup" type="text" required>
+<label>Mobile Number</label>
+<input id="mobile" type="tel" required>
 
-        <label>Mobile Number</label>
-        <input id="mobile" type="tel"
-               inputmode="numeric" required>
+<button type="submit">Save</button>
+</form>
 
-        <button type="submit">Save</button>
-    </form>
+<p id="status"></p>
 
-    <h2>Member Records</h2>
-    <div id="JaisalList">
-        अभी कोई रिकॉर्ड नहीं है।
-    </div>
+<div id="adminPanel">
+<h2>Admin Login</h2>
+
+<input id="adminEmail" type="email"
+placeholder="Admin Email">
+
+<input id="adminPassword" type="password"
+placeholder="Admin Password">
+
+<button id="loginBtn" type="button">
+Admin Login
+</button>
+
+<button id="logoutBtn" type="button"
+hidden>Logout</button>
+
+<p id="adminStatus">केवल Admin सभी रिकॉर्ड देख सकता है।</p>
+</div>
+
+<h2>Member Records</h2>
+<div id="JaisalList">
+Admin Login करने के बाद रिकॉर्ड दिखेंगे।
+</div>
 
 </div>
 
-<script>
-    const STORAGE_KEY = "JaisalRecords";
+<script type="module">
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 
-    let records = [];
+import {
+ getAuth,
+ signInAnonymously,
+ signInWithEmailAndPassword,
+ onAuthStateChanged,
+ signOut
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-    // पुराने रिकॉर्ड लोड करें
-    try {
-        records = JSON.parse(
-            localStorage.getItem(STORAGE_KEY) || "[]"
-        );
+import {
+ getFirestore,
+ collection,
+ addDoc,
+ onSnapshot,
+ query,
+ orderBy,
+ deleteDoc,
+ doc,
+ serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        if (!Array.isArray(records)) {
-            records = [];
-        }
-    } catch (error) {
-        records = [];
-    }
+// आपका Firebase Configuration
+const firebaseConfig = {
+ apiKey: "AIzaSyDUvc_ywE0a4hkLlyQfVA8XBvvxcFjSIyg",
+ authDomain: "jaisal-femaly.firebaseapp.com",
+ projectId: "jaisal-femaly",
+ storageBucket: "jaisal-femaly.firebasestorage.app",
+ messagingSenderId: "612002069584",
+ appId: "1:612002069584:web:c03c537e47c02a77f6a555",
+ measurementId: "G-7Z3B170ET2"
+};
 
-    const form = document.getElementById("familyForm");
-    const list = document.getElementById("JaisalList");
+// यहाँ अपना Firebase Admin Email डालें
+const ADMIN_EMAIL = "YOUR_ADMIN_EMAIL";
 
-    // रिकॉर्ड दिखाएँ
-    function showRecords() {
-        list.replaceChildren();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-        if (records.length === 0) {
-            list.textContent = "अभी कोई रिकॉर्ड नहीं है।";
-            return;
-        }
+const form = document.getElementById("familyForm");
+const list = document.getElementById("JaisalList");
+const status = document.getElementById("status");
+const adminStatus = document.getElementById("adminStatus");
 
-        records.forEach((item, index) => {
-            const record = document.createElement("div");
-            record.className = "record";
+let unsubscribeRecords = null;
 
-            const details = document.createElement("p");
+// रिकॉर्ड दिखाना
+function loadRecords() {
+ if (unsubscribeRecords) unsubscribeRecords();
 
-            details.textContent =
-                "Name: " + item.name +
-                " | Village: " + item.village +
-                " | Post: " + item.post +
-                " | Tahsil: " + item.tahsil +
-                " | District: " + item.district +
-                " | State: " + item.state +
-                " | Pincode: " + item.pincode +
-                " | Date of Birth: " + item.dob +
-                " | Blood Group: " + item.bloodGroup +
-                " | Mobile: " + item.mobile;
+ const q = query(
+   collection(db, "members"),
+   orderBy("createdAt", "desc")
+ );
 
-            const deleteButton = document.createElement("button");
-            deleteButton.textContent = "Delete";
-            deleteButton.className = "delete-btn";
+ unsubscribeRecords = onSnapshot(q, (snapshot) => {
+   list.replaceChildren();
 
-            deleteButton.addEventListener("click", function () {
-                if (confirm("क्या यह रिकॉर्ड हटाना चाहते हैं?")) {
-                    records.splice(index, 1);
-                    saveRecords();
-                    showRecords();
-                }
-            });
+   if (snapshot.empty) {
+     list.textContent = "अभी कोई रिकॉर्ड नहीं है।";
+     return;
+   }
 
-            record.appendChild(details);
-            record.appendChild(deleteButton);
-            list.appendChild(record);
-        });
-    }
+   snapshot.forEach((item) => {
+     const data = item.data();
+     const card = document.createElement("div");
+     card.className = "record";
 
-    // रिकॉर्ड सुरक्षित करें
-    function saveRecords() {
-        try {
-            localStorage.setItem(
-                STORAGE_KEY,
-                JSON.stringify(records)
-            );
-            return true;
-        } catch (error) {
-            alert("डेटा सेव नहीं हो पाया।");
-            return false;
-        }
-    }
+     const details = document.createElement("p");
+     details.textContent =
+       "Name: " + data.name +
+       " | Village: " + data.village +
+       " | Post: " + data.post +
+       " | Tahsil: " + data.tahsil +
+       " | District: " + data.district +
+       " | State: " + data.state +
+       " | Pincode: " + data.pincode +
+       " | DOB: " + data.dob +
+       " | Blood Group: " + data.bloodGroup +
+       " | Mobile: " + data.mobile;
 
-    // नया रिकॉर्ड सेव करें
-    form.addEventListener("submit", function (event) {
-        event.preventDefault();
+     const del = document.createElement("button");
+     del.textContent = "Delete";
+     del.className = "delete-btn";
 
-        const record = {
-            name: document.getElementById("memberName").value.trim(),
-            village: document.getElementById("village").value.trim(),
-            post: document.getElementById("post").value.trim(),
-            tahsil: document.getElementById("tahsil").value.trim(),
-            district: document.getElementById("district").value.trim(),
-            state: document.getElementById("state").value.trim(),
-            pincode: document.getElementById("pincode").value.trim(),
-            dob: document.getElementById("dob").value,
-            bloodGroup: document.getElementById("bloodGroup").value.trim(),
-            mobile: document.getElementById("mobile").value.trim()
-        };
+     del.onclick = async () => {
+       if (confirm("क्या यह रिकॉर्ड हटाना चाहते हैं?")) {
+         try {
+           await deleteDoc(doc(db, "members", item.id));
+         } catch (error) {
+           alert("Delete नहीं हुआ: " + error.message);
+         }
+       }
+     };
 
-        records.push(record);
+     card.append(details, del);
+     list.appendChild(card);
+   });
+ }, (error) => {
+   list.textContent = "रिकॉर्ड लोड नहीं हुए: " + error.message;
+ });
+}
 
-        if (saveRecords()) {
-            showRecords();
-            form.reset();
-            alert("Record Successfully Saved!");
-        } else {
-            records.pop();
-        }
-    });
+// Login के बाद रिकॉर्ड दिखाना
+onAuthStateChanged(auth, async (user) => {
+ if (!user) {
+   try {
+     await signInAnonymously(auth);
+   } catch (error) {
+     status.textContent = "Authentication Error: " + error.message;
+   }
+   return;
+ }
 
-    // पेज खुलने पर रिकॉर्ड दिखाएँ
-    showRecords();
+ if (user.email === ADMIN_EMAIL) {
+   adminStatus.textContent = "Admin Login सफल हुआ।";
+   document.getElementById("loginBtn").hidden = true;
+   document.getElementById("logoutBtn").hidden = false;
+   loadRecords();
+ } else {
+   if (unsubscribeRecords) {
+     unsubscribeRecords();
+     unsubscribeRecords = null;
+   }
+
+   list.textContent = "Admin Login करने के बाद रिकॉर्ड दिखेंगे।";
+   adminStatus.textContent = "आप Admin के रूप में लॉगिन नहीं हैं।";
+   document.getElementById("loginBtn").hidden = false;
+   document.getElementById("logoutBtn").hidden = true;
+ }
+});
+
+// नया रिकॉर्ड सेव करना
+form.addEventListener("submit", async (event) => {
+ event.preventDefault();
+
+ const record = {
+   name: document.getElementById("memberName").value.trim(),
+   village: document.getElementById("village").value.trim(),
+   post: document.getElementById("post").value.trim(),
+   tahsil: document.getElementById("tahsil").value.trim(),
+   district: document.getElementById("district").value.trim(),
+   state: document.getElementById("state").value.trim(),
+   pincode: document.getElementById("pincode").value.trim(),
+   dob: document.getElementById("dob").value,
+   bloodGroup: document.getElementById("bloodGroup").value.trim(),
+   mobile: document.getElementById("mobile").value.trim(),
+   createdAt: serverTimestamp()
+ };
+
+ try {
+   if (!auth.currentUser) {
+     throw new Error("Authentication तैयार नहीं है।");
+   }
+
+   await addDoc(collection(db, "members"), record);
+
+   status.textContent = "Record Successfully Saved!";
+   form.reset();
+
+ } catch (error) {
+   status.textContent = "Save Error: " + error.message;
+ }
+});
+
+// Admin Login
+document.getElementById("loginBtn").onclick = async () => {
+ const email = document.getElementById("adminEmail").value.trim();
+ const password = document.getElementById("adminPassword").value;
+
+ try {
+   await signInWithEmailAndPassword(auth, email, password);
+ } catch (error) {
+   adminStatus.textContent = "Login Error: " + error.message;
+ }
+};
+
+// Logout
+document.getElementById("logoutBtn").onclick = async () => {
+ try {
+   await signOut(auth);
+ } catch (error) {
+   adminStatus.textContent = error.message;
+ }
+};
 </script>
 
 </body>
