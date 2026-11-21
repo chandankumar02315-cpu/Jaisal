@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jaisal Family</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 15px;
+            background: #f2f4f8;
+        }
+
+        h1, h2 {
+            color: #173b8a;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 18px;
+            border-radius: 10px;
+        }
+
+        label {
+            display: block;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #aaa;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 16px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 5px;
+            background: #173b8a;
+            color: white;
+            cursor: pointer;
+        }
+
+        .record {
+            border: 1px solid #173b8a;
+            padding: 12px;
+            margin-top: 12px;
+            border-radius: 7px;
+            overflow-wrap: anywhere;
+        }
+
+        .delete-btn {
+            background: #c62828;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>Jaisal Family</h1>
+    <p>Welcome to my Family</p>
+
+    <h2>Add Family Details</h2>
+
+    <form id="familyForm">
+
+        <label>Member Name</label>
+        <input id="memberName" type="text" required>
+
+        <label>Village</label>
+        <input id="village" type="text" required>
+
+        <label>Post</label>
+        <input id="post" type="text" required>
+
+        <label>Tahsil</label>
+        <input id="tahsil" type="text" required>
+
+        <label>District</label>
+        <input id="district" type="text" required>
+
+        <label>State</label>
+        <input id="state" type="text" required>
+
+        <label>Pin Code</label>
+        <input id="pincode" type="text"
+               inputmode="numeric" maxlength="6" required>
+
+        <label>Date of Birth</label>
+        <input id="dob" type="date" required>
+
+        <label>Blood Group</label>
+        <input id="bloodGroup" type="text" required>
+
+        <label>Mobile Number</label>
+        <input id="mobile" type="tel"
+               inputmode="numeric" required>
+
+        <button type="submit">Save</button>
+    </form>
+
+    <h2>Member Records</h2>
+    <div id="JaisalList">
+        अभी कोई रिकॉर्ड नहीं है।
+    </div>
+
+</div>
+
+<script>
+    const STORAGE_KEY = "JaisalRecords";
+
+    let records = [];
+
+    // पुराने रिकॉर्ड लोड करें
+    try {
+        records = JSON.parse(
+            localStorage.getItem(STORAGE_KEY) || "[]"
+        );
+
+        if (!Array.isArray(records)) {
+            records = [];
+        }
+    } catch (error) {
+        records = [];
+    }
+
+    const form = document.getElementById("familyForm");
+    const list = document.getElementById("JaisalList");
+
+    // रिकॉर्ड दिखाएँ
+    function showRecords() {
+        list.replaceChildren();
+
+        if (records.length === 0) {
+            list.textContent = "अभी कोई रिकॉर्ड नहीं है।";
+            return;
+        }
+
+        records.forEach((item, index) => {
+            const record = document.createElement("div");
+            record.className = "record";
+
+            const details = document.createElement("p");
+
+            details.textContent =
+                "Name: " + item.name +
+                " | Village: " + item.village +
+                " | Post: " + item.post +
+                " | Tahsil: " + item.tahsil +
+                " | District: " + item.district +
+                " | State: " + item.state +
+                " | Pincode: " + item.pincode +
+                " | Date of Birth: " + item.dob +
+                " | Blood Group: " + item.bloodGroup +
+                " | Mobile: " + item.mobile;
+
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.className = "delete-btn";
+
+            deleteButton.addEventListener("click", function () {
+                if (confirm("क्या यह रिकॉर्ड हटाना चाहते हैं?")) {
+                    records.splice(index, 1);
+                    saveRecords();
+                    showRecords();
+                }
+            });
+
+            record.appendChild(details);
+            record.appendChild(deleteButton);
+            list.appendChild(record);
+        });
+    }
+
+    // रिकॉर्ड सुरक्षित करें
+    function saveRecords() {
+        try {
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(records)
+            );
+            return true;
+        } catch (error) {
+            alert("डेटा सेव नहीं हो पाया।");
+            return false;
+        }
+    }
+
+    // नया रिकॉर्ड सेव करें
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const record = {
+            name: document.getElementById("memberName").value.trim(),
+            village: document.getElementById("village").value.trim(),
+            post: document.getElementById("post").value.trim(),
+            tahsil: document.getElementById("tahsil").value.trim(),
+            district: document.getElementById("district").value.trim(),
+            state: document.getElementById("state").value.trim(),
+            pincode: document.getElementById("pincode").value.trim(),
+            dob: document.getElementById("dob").value,
+            bloodGroup: document.getElementById("bloodGroup").value.trim(),
+            mobile: document.getElementById("mobile").value.trim()
+        };
+
+        records.push(record);
+
+        if (saveRecords()) {
+            showRecords();
+            form.reset();
+            alert("Record Successfully Saved!");
+        } else {
+            records.pop();
+        }
+    });
+
+    // पेज खुलने पर रिकॉर्ड दिखाएँ
+    showRecords();
+</script>
+
+</body>
+</html>
