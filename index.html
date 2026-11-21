@@ -1,0 +1,35 @@
+
+    // नया रिकॉर्ड सेव करें
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const record = {
+            name: document.getElementById("memberName").value.trim(),
+            village: document.getElementById("village").value.trim(),
+            post: document.getElementById("post").value.trim(),
+            tahsil: document.getElementById("tahsil").value.trim(),
+            district: document.getElementById("district").value.trim(),
+            state: document.getElementById("state").value.trim(),
+            pincode: document.getElementById("pincode").value.trim(),
+            dob: document.getElementById("dob").value,
+            bloodGroup: document.getElementById("bloodGroup").value.trim(),
+            mobile: document.getElementById("mobile").value.trim()
+        };
+
+        records.push(record);
+
+        if (saveRecords()) {
+            showRecords();
+            form.reset();
+            alert("Record Successfully Saved!");
+        } else {
+            records.pop();
+        }
+    });
+
+    // पेज खुलने पर रिकॉर्ड दिखाएँ
+    showRecords();
+</script>
+
+</body>
+</html>
