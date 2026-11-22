@@ -40,6 +40,10 @@ button {
     border-radius: 5px;
     background: #173b8a;
     color: white;
+    cursor: pointer;
+}
+button:disabled {
+    opacity: 0.6;
 }
 .record {
     border: 1px solid #173b8a;
@@ -55,6 +59,9 @@ button {
     margin-top: 20px;
     border-radius: 8px;
 }
+#status, #adminStatus {
+    overflow-wrap: anywhere;
+}
 </style>
 </head>
 
@@ -67,13 +74,14 @@ button {
 <h2>Add Family Details</h2>
 
 <form id="familyForm">
+
 <label>Member Name</label>
 <input id="memberName" required>
 
 <label>Father/Husband Name</label>
-<input id="fatherhusband Name" required>
+<input id="fatherhusband" required>
 
-<label> Relation</label>
+<label>Relation</label>
 <input id="relation" required>
 
 <label>Village</label>
@@ -93,26 +101,26 @@ button {
 
 <label>Pin Code</label>
 <input id="pincode" inputmode="numeric"
-maxlength="6" required>
+maxlength="6" pattern="[0-9]{6}" required>
 
 <label>Date of Birth</label>
 <input id="dob" type="date" required>
-
-<label>Aadhar card No</label>
-<input id="aadharNo" required>
 
 <label>Blood Group</label>
 <input id="bloodGroup" required>
 
 <label>Mobile Number</label>
-<input id="mobile" type="tel" required>
+<input id="mobile" type="tel"
+pattern="[0-9]{10}" maxlength="10" required>
 
-<button type="submit">Save</button>
+<button id="saveBtn" type="submit">Save</button>
+
 </form>
 
-<p id="status"></p>
+<p id="status" role="status"></p>
 
 <div id="adminPanel">
+
 <h2>Admin Login</h2>
 
 <input id="adminEmail" type="email"
@@ -125,13 +133,18 @@ placeholder="Admin Password">
 Admin Login
 </button>
 
-<button id="logoutBtn" type="button"
-hidden>Logout</button>
+<button id="logoutBtn" type="button" hidden>
+Logout
+</button>
 
-<p id="adminStatus">केवल Admin सभी रिकॉर्ड देख सकता है।</p>
+<p id="adminStatus">
+केवल Admin सभी रिकॉर्ड देख सकता है।
+</p>
+
 </div>
 
 <h2>Member Records</h2>
+
 <div id="JaisalList">
 Admin Login करने के बाद रिकॉर्ड दिखेंगे।
 </div>
@@ -139,6 +152,7 @@ Admin Login करने के बाद रिकॉर्ड दिखें�
 </div>
 
 <script type="module">
+
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 
@@ -162,7 +176,8 @@ import {
  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// आपका Firebase Configuration
+// FIREBASE CONFIG
+
 const firebaseConfig = {
  apiKey: "AIzaSyDUvc_ywE0a4hkLlyQfVA8XBvvxcFjSIyg",
  authDomain: "jaisal-femaly.firebaseapp.com",
@@ -173,23 +188,93 @@ const firebaseConfig = {
  measurementId: "G-7Z3B170ET2"
 };
 
-// यहाँ अपना Firebase Admin Email डालें
+// ADMIN EMAIL
+
 const ADMIN_EMAIL = "chandankumar02315@gmail.com";
+
+// INITIALIZE FIREBASE
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// ELEMENTS
+
 const form = document.getElementById("familyForm");
 const list = document.getElementById("JaisalList");
 const status = document.getElementById("status");
 const adminStatus = document.getElementById("adminStatus");
+const saveBtn = document.getElementById("saveBtn");
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
 let unsubscribeRecords = null;
+let authReady = Promise.resolve(null);
 
-// रिकॉर्ड दिखाना
+// AUTHENTICATION
+
+onAuthStateChanged(auth, (user) => {
+
+ if (!user) {
+
+   loginBtn.hidden = false;
+   logoutBtn.hidden = true;
+
+   list.textContent =
+   "Admin Login करने के बाद रिकॉर्ड दिखेंगे।";
+
+   adminStatus.textContent =
+   "आप Admin के रूप में लॉगिन नहीं हैं।";
+
+   authReady = signInAnonymously(auth)
+     .then(credential => credential.user)
+     .catch(error => {
+       status.textContent =
+       "Authentication Error: " + error.message;
+       throw error;
+     });
+
+   authReady.catch(() => {});
+   return;
+ }
+
+ authReady = Promise.resolve(user);
+
+ if (user.email === ADMIN_EMAIL) {
+
+   adminStatus.textContent = "Admin Login सफल हुआ।";
+
+   loginBtn.hidden = true;
+   logoutBtn.hidden = false;
+
+   loadRecords();
+
+ } else {
+
+   if (unsubscribeRecords) {
+     unsubscribeRecords();
+     unsubscribeRecords = null;
+   }
+
+   list.textContent =
+   "Admin Login करने के बाद रिकॉर्ड दिखेंगे।";
+
+   adminStatus.textContent =
+   "आप Admin के रूप में लॉगिन नहीं हैं।";
+
+   loginBtn.hidden = false;
+   logoutBtn.hidden = true;
+ }
+
+});
+
+// LOAD RECORDS
+
 function loadRecords() {
- if (unsubscribeRecords) unsubscribeRecords();
+
+ if (unsubscribeRecords) {
+   unsubscribeRecords();
+ }
 
  const q = query(
    collection(db, "members"),
@@ -197,6 +282,7 @@ function loadRecords() {
  );
 
  unsubscribeRecords = onSnapshot(q, (snapshot) => {
+
    list.replaceChildren();
 
    if (snapshot.empty) {
@@ -205,11 +291,14 @@ function loadRecords() {
    }
 
    snapshot.forEach((item) => {
+
      const data = item.data();
+
      const card = document.createElement("div");
      card.className = "record";
 
      const details = document.createElement("p");
+
      details.textContent =
        "Name: " + data.name +
        " | Father/Husband: " + data.fatherhusband +
@@ -221,117 +310,152 @@ function loadRecords() {
        " | State: " + data.state +
        " | Pincode: " + data.pincode +
        " | DOB: " + data.dob +
-       " | Aadhar card No: " + data.aadharNo +    
        " | Blood Group: " + data.bloodGroup +
        " | Mobile: " + data.mobile;
 
      const del = document.createElement("button");
+
      del.textContent = "Delete";
      del.className = "delete-btn";
 
      del.onclick = async () => {
-       if (confirm("क्या यह रिकॉर्ड हटाना चाहते हैं?")) {
-         try {
-           await deleteDoc(doc(db, "members", item.id));
-         } catch (error) {
-           alert("Delete नहीं हुआ: " + error.message);
-         }
+
+       if (!confirm("क्या यह रिकॉर्ड हटाना चाहते हैं?")) {
+         return;
        }
+
+       try {
+         await deleteDoc(doc(db, "members", item.id));
+       } catch (error) {
+         alert("Delete Error: " + error.message);
+       }
+
      };
 
      card.append(details, del);
      list.appendChild(card);
+
    });
+
  }, (error) => {
-   list.textContent = "रिकॉर्ड लोड नहीं हुए: " + error.message;
+
+   list.textContent =
+   "रिकॉर्ड लोड नहीं हुए: " + error.message;
+
  });
+
 }
 
-// Login के बाद रिकॉर्ड दिखाना
-onAuthStateChanged(auth, async (user) => {
- if (!user) {
-   try {
-     await signInAnonymously(auth);
-   } catch (error) {
-     status.textContent = "Authentication Error: " + error.message;
-   }
-   return;
- }
+// SAVE RECORDS
 
- if (user.email === ADMIN_EMAIL) {
-   adminStatus.textContent = "Admin Login सफल हुआ।";
-   document.getElementById("loginBtn").hidden = true;
-   document.getElementById("logoutBtn").hidden = false;
-   loadRecords();
- } else {
-   if (unsubscribeRecords) {
-     unsubscribeRecords();
-     unsubscribeRecords = null;
-   }
-
-   list.textContent = "Admin Login करने के बाद रिकॉर्ड दिखेंगे।";
-   adminStatus.textContent = "आप Admin के रूप में लॉगिन नहीं हैं।";
-   document.getElementById("loginBtn").hidden = false;
-   document.getElementById("logoutBtn").hidden = true;
- }
-});
-
-// नया रिकॉर्ड सेव करना
 form.addEventListener("submit", async (event) => {
+
  event.preventDefault();
 
- const record = {
-   name: document.getElementById("memberName").value.trim(),
-   fatherhusband: document.getElementById("fatherhusband").value.trim(),
-   relation: document.getElementById("relation").value.trim(),
-   village: document.getElementById("village").value.trim(),
-   post: document.getElementById("post").value.trim(),
-   tahsil: document.getElementById("tahsil").value.trim(),
-   district: document.getElementById("district").value.trim(),
-   state: document.getElementById("state").value.trim(),
-   pincode: document.getElementById("pincode").value.trim(),
-   dob: document.getElementById("dob").value,
-   aadharNo: document.getElementById("aadharNo").value.trim(),
-   bloodGroup: document.getElementById("bloodGroup").value.trim(),
-   mobile: document.getElementById("mobile").value.trim(),
-   createdAt: serverTimestamp()
- };
+ saveBtn.disabled = true;
+ status.textContent = "रिकॉर्ड सेव हो रहा है...";
 
  try {
-   if (!auth.currentUser) {
+
+   const user = await authReady;
+
+   if (!user || !auth.currentUser) {
      throw new Error("Authentication तैयार नहीं है।");
    }
+
+   const record = {
+
+     name: document.getElementById("memberName").value.trim(),
+
+     fatherhusband: document.getElementById("fatherhusband").value.trim(),
+
+     relation: document.getElementById("relation").value.trim(),
+
+     village: document.getElementById("village").value.trim(),
+
+     post: document.getElementById("post").value.trim(),
+
+     tahsil: document.getElementById("tahsil").value.trim(),
+
+     district: document.getElementById("district").value.trim(),
+
+     state: document.getElementById("state").value.trim(),
+
+     pincode: document.getElementById("pincode").value.trim(),
+
+     dob: document.getElementById("dob").value,
+
+     bloodGroup: document.getElementById("bloodGroup").value.trim(),
+
+     mobile: document.getElementById("mobile").value.trim(),
+
+     createdAt: serverTimestamp()
+
+   };
 
    await addDoc(collection(db, "members"), record);
 
    status.textContent = "Record Successfully Saved!";
+
    form.reset();
 
  } catch (error) {
-   status.textContent = "Save Error: " + error.message;
+
+   status.textContent =
+   "Save Error: " + error.message;
+
+   console.error("Save Error:", error);
+
+ } finally {
+
+   saveBtn.disabled = false;
+
  }
+
 });
 
-// Admin Login
-document.getElementById("loginBtn").onclick = async () => {
- const email = document.getElementById("adminEmail").value.trim();
- const password = document.getElementById("adminPassword").value;
+// ADMIN LOGIN
+
+loginBtn.onclick = async () => {
+
+ const email =
+ document.getElementById("adminEmail").value.trim();
+
+ const password =
+ document.getElementById("adminPassword").value;
+
+ adminStatus.textContent = "Login हो रहा है...";
 
  try {
+
    await signInWithEmailAndPassword(auth, email, password);
+
  } catch (error) {
-   adminStatus.textContent = "Login Error: " + error.message;
+
+   adminStatus.textContent =
+   "Login Error: " + error.message;
+
  }
+
 };
 
-// Logout
-document.getElementById("logoutBtn").onclick = async () => {
+// ADMIN LOGOUT
+
+logoutBtn.onclick = async () => {
+
  try {
+
    await signOut(auth);
+
  } catch (error) {
-   adminStatus.textContent = error.message;
+
+   adminStatus.textContent =
+   "Logout Error: " + error.message;
+
  }
+
 };
+
 </script>
 
 </body>
