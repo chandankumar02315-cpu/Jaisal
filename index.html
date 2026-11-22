@@ -70,6 +70,9 @@ button {
 <label>Member Name</label>
 <input id="memberName" required>
 
+<label>Father/Husband Name</label>
+<input id="Father/Husband Name" required>
+
 <label>Village</label>
 <input id="village" required>
 
@@ -91,6 +94,9 @@ maxlength="6" required>
 
 <label>Date of Birth</label>
 <input id="dob" type="date" required>
+
+<label>Aadhar card No</label>
+<input id="Aadhar card No" required>
 
 <label>Blood Group</label>
 <input id="bloodGroup" required>
@@ -203,6 +209,7 @@ function loadRecords() {
      const details = document.createElement("p");
      details.textContent =
        "Name: " + data.name +
+       " | Father/Husband: " + data.fatherhusband +
        " | Village: " + data.village +
        " | Post: " + data.post +
        " | Tahsil: " + data.tahsil +
@@ -210,6 +217,7 @@ function loadRecords() {
        " | State: " + data.state +
        " | Pincode: " + data.pincode +
        " | DOB: " + data.dob +
+       " | Aadhar card No: " + data.aadharno +    
        " | Blood Group: " + data.bloodGroup +
        " | Mobile: " + data.mobile;
 
@@ -270,6 +278,7 @@ form.addEventListener("submit", async (event) => {
 
  const record = {
    name: document.getElementById("memberName").value.trim(),
+   fatherhusband: document.getElementById("fatherhusband").value.trim(),
    village: document.getElementById("village").value.trim(),
    post: document.getElementById("post").value.trim(),
    tahsil: document.getElementById("tahsil").value.trim(),
@@ -277,6 +286,7 @@ form.addEventListener("submit", async (event) => {
    state: document.getElementById("state").value.trim(),
    pincode: document.getElementById("pincode").value.trim(),
    dob: document.getElementById("dob").value,
+   aadharNo: document.getElementById("aadharNo").value.trim(),
    bloodGroup: document.getElementById("bloodGroup").value.trim(),
    mobile: document.getElementById("mobile").value.trim(),
    createdAt: serverTimestamp()
