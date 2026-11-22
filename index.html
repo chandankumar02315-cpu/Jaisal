@@ -106,7 +106,7 @@ maxlength="6" pattern="[0-9]{6}" required>
 <label>Date of Birth</label>
 <input id="dob" type="date" required>
 
-<label>Aadhar No</label></label>
+<label>Aadhar No</label>
 <input type="text" id="aadhar" placeholder="12 अंकों का आधार नंबर"
 maxlength="12" inputmode="numeric">
 
@@ -389,6 +389,8 @@ form.addEventListener("submit", async (event) => {
      pincode: document.getElementById("pincode").value.trim(),
 
      dob: document.getElementById("dob").value,
+       
+     aadharNo: document.getElementById("aadhar").value.trim(),
 
      bloodGroup: document.getElementById("bloodGroup").value.trim(),
 
