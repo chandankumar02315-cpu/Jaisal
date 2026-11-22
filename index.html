@@ -73,6 +73,9 @@ button {
 <label>Father/Husband Name</label>
 <input id="fatherHusband Name" required>
 
+<label> Relation</label>
+<input id="relation" required>
+
 <label>Village</label>
 <input id="village" required>
 
@@ -210,6 +213,7 @@ function loadRecords() {
      details.textContent =
        "Name: " + data.name +
        " | Father/Husband: " + data.fatherhusband +
+       " | Relation: " + data.relation +
        " | Village: " + data.village +
        " | Post: " + data.post +
        " | Tahsil: " + data.tahsil +
@@ -279,6 +283,7 @@ form.addEventListener("submit", async (event) => {
  const record = {
    name: document.getElementById("memberName").value.trim(),
    fatherhusband: document.getElementById("fatherhusband").value.trim(),
+   relation: document.getElementById("relation").value.trim(),
    village: document.getElementById("village").value.trim(),
    post: document.getElementById("post").value.trim(),
    tahsil: document.getElementById("tahsil").value.trim(),
